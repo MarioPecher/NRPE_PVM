@@ -1,0 +1,21 @@
+#!/usr/bin/ksh
+# determine e1 app server state
+rg_srv="sdacerp921"
+service="ENT_EMEA"
+instance=jde920
+state=$(e1d ${instance} status | sed '1,1d' | awk {'print $2'})
+if [ $state != "UP" ] ;
+ then
+   if [ $(netstat -i | grep -E "${rg_srv} " | wc -l ) -eq 1 ]; then
+	
+   	STATUS=2
+  	echo "$STATUS ${service} HOST=$(hostname) CRITICAL - E1 Service $service on node $(hostname) should be running, but does not!"
+   else
+        STATUS=3
+   	echo "$STATUS ${service} HOST=$(hostname) OK - E1 IP Label not bound; Service $service on node $(hostname) shouldn't be running!" 
+   fi 
+else 
+   STATUS=0
+   echo "$STATUS ${service} HOST=$(hostname) OK - E1 Service $service on node $(hostname) is running properly" 
+fi;
+ 
